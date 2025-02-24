@@ -66,6 +66,11 @@ class AlumnoController extends Controller
      */
     public function update(Request $request, Alumno $alumno)
     {
+
+        if(!Gate::allows('eliminar-alumno')){
+            abort(403, 'Error, solo puede modificar el admin');
+        };
+
         $validate = $request->validate([ 
             'nombre' => 'required | string | max:255',
         ]);
