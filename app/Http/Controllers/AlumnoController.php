@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alumno;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 use function PHPUnit\Framework\returnSelf;
 
@@ -12,8 +14,10 @@ class AlumnoController extends Controller
     /**
      * Display a listing of the resource.
      */
+
     public function index()
     {
+        
         //alumnos ordenados por id
         
         $alumnos = Alumno::orderBy('id', 'asc')->get();
@@ -77,6 +81,10 @@ class AlumnoController extends Controller
      */
     public function destroy(Alumno $alumno)
     {
+        if(!Gate::allows('eliminar-alumno')){
+            abort(403, 'No eres el admin');
+        };
+
         $alumno->delete();
         return redirect()->route('alumnos.index');
     }
