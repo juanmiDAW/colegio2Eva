@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Asignatura;
 use App\Models\Nota;
 use Illuminate\Http\Request;
 
@@ -12,7 +13,7 @@ class NotaController extends Controller
      */
     public function index()
     {
-        //
+        return view('notas.index', ['notas' => Nota::all()]);
     }
 
     /**
@@ -20,7 +21,7 @@ class NotaController extends Controller
      */
     public function create()
     {
-        //
+        return view('notas.create', ['asignaturas' => Asignatura::all()]);
     }
 
     /**
@@ -28,7 +29,16 @@ class NotaController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $user = $request->user()->id;
+        $validate = $request->validate([
+            'asignaturas'=>'required|string|max:255',
+            'nota'=>'required|integer',
+        ]);
+
+        $validate['user_id'] = $user;
+
+        Nota::create($validate);
+        return redirect()->route('notas.index');
     }
 
     /**
