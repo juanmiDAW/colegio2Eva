@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Alumno;
 use App\Models\Asignatura;
 use App\Models\Nota;
 use Illuminate\Http\Request;
@@ -21,7 +22,13 @@ class NotaController extends Controller
      */
     public function create()
     {
-        return view('notas.create', ['asignaturas' => Asignatura::all()]);
+        $asignaturas = Asignatura::all();
+        $alumnos = Alumno::all();
+
+        return view('notas.create', [
+            'asignaturas' => $asignaturas ,
+            'alumnos' => $alumnos ,
+    ]);
     }
 
     /**
@@ -30,11 +37,20 @@ class NotaController extends Controller
     public function store(Request $request)
     {
         $user = $request->user()->id;
+
+        $asignatura = Asignatura::findOrFail($request->asignatura_id);
+        if($request->trimestre > $asignatura->numero_trimestres){
+            return back()->withErrors(['trimestre' => "El trimestre no puede ser mayor que {$asignatura->numero_trimestres}."])
+            ->withInput(); 
+        }
+        
         $validate = $request->validate([
-            'asignaturas'=>'required|string|max:255',
+            'alumno_id'=>'required|integer',
+            'asignatura_id'=>'required|integer',
+            'trimestre'=>'required|string',
             'nota'=>'required|integer',
         ]);
-
+        
         $validate['user_id'] = $user;
 
         Nota::create($validate);
